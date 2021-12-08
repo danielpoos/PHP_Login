@@ -1,10 +1,13 @@
 <?php
 
+use Petrik\Loginapp\Middlewares\AuthMiddleware;
 use Petrik\Loginapp\Token;
 use Petrik\Loginapp\User;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
+use Slim\Routing\RouteCollectorProxy;
+
 return function(App $app){
     $app->get('/hello', function (Request $request, Response $response, array $args) {
         #$name = $args['name'];
@@ -37,5 +40,12 @@ return function(App $app){
         $response->getBody()->write(json_encode(['email' => $user->email, 'token' =>$token->token]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     });
-
+    $app->group('/api', function(RouteCollectorProxy $group){
+        $group->get('/hello', function (Request $request, Response $response){
+            $response->getBody()->write(json_encode([
+                    'Hi'=>'Mark',
+                ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        });
+    })->add(new AuthMiddleware);
 };
